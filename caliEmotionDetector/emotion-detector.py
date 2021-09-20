@@ -12,7 +12,7 @@ def detect_face(img):
     face_cascade = cv2.CascadeClassifier('face-detector.xml')
     # run the face through the OpenCV detectMultiScale, scale factor determines how much the face
     # can vary by
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=2)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=10)
     # if no faces are detected, return none for both
     if len(faces) == 0:
         return None, None
@@ -83,11 +83,11 @@ face_recognizer.train(faces, np.array(labels))
 
 print("Predicting images...")
 
-test_img1 = cv2.imread("test-data/1.png")
-test_img2 = cv2.imread("test-data/2.png")
-test_img3 = cv2.imread("test-data/3.png")
-test_img4 = cv2.imread("test-data/4.png")
-test_img5 = cv2.imread("test-data/5.png")
+test_img1 = cv2.imread("test-data/6.png")
+test_img2 = cv2.imread("test-data/11.png")
+test_img3 = cv2.imread("test-data/8.png")
+test_img4 = cv2.imread("test-data/9.png")
+test_img5 = cv2.imread("test-data/10.png")
 
 predicted_img1 = predict(test_img1)
 predicted_img2 = predict(test_img2)
