@@ -1,8 +1,10 @@
 import cv2
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
-emotions = ["", "sad", "happy", "neutral"]
+emotions = ["", "sad", "happy", "neutral", "surprised", "angry"]
+emotion_count = [0, 0, 0, 0, 0, 0]
 
 
 def detect_face(img):
@@ -58,6 +60,7 @@ def predict(test_img):
     face, rect = detect_face(img)
     label, confidence = face_recognizer.predict(face)
     label_text = emotions[label]
+    emotion_count[label] += 1
     draw_rectangle(img, rect)
     draw_text(img, label_text, rect[0], rect[1] - 5)
     return img
@@ -72,6 +75,18 @@ def draw_text(img, text, x, y):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
 
+def plot_results():
+    plt.style.use('ggplot')
+    x_pos = [i for i, _ in enumerate(emotions)]
+
+    plt.bar(x_pos, emotion_count, color='green')
+    plt.xlabel("Emotions")
+    plt.ylabel("Time Spent in Emotion (minutes)")
+    plt.title("Calliope Mori's Emotions Over Time")
+    plt.xticks(x_pos, emotions)
+    plt.show()
+
+
 print("Preparing data...")
 faces, labels = prepare_training_data("training-data")
 print("Data prepared")
@@ -83,25 +98,18 @@ face_recognizer.train(faces, np.array(labels))
 
 print("Predicting images...")
 
-test_img1 = cv2.imread("test-data/6.png")
-test_img2 = cv2.imread("test-data/11.png")
-test_img3 = cv2.imread("test-data/8.png")
-test_img4 = cv2.imread("test-data/9.png")
-test_img5 = cv2.imread("test-data/10.png")
+cap = cv2.VideoCapture('test_vod.mp4')
+out = cv2.VideoWriter('predicted_vod.mp4', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30, (1920, 1080))
+while True:
+    ret, frame = cap.read()
+    predicted_frame = predict(frame)
+    out.write(predicted_frame)
 
-predicted_img1 = predict(test_img1)
-predicted_img2 = predict(test_img2)
-predicted_img3 = predict(test_img3)
-predicted_img4 = predict(test_img4)
-predicted_img5 = predict(test_img5)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+out.release()
 print("Prediction complete")
+plot_results()
 
-cv2.imshow("Test Image 1", cv2.resize(predicted_img1, (889, 500)))
-cv2.imshow("Test Image 2", cv2.resize(predicted_img2, (889, 500)))
-cv2.imshow("Test Image 3", cv2.resize(predicted_img3, (889, 500)))
-cv2.imshow("Test Image 4", cv2.resize(predicted_img4, (889, 500)))
-cv2.imshow("Test Image 5", cv2.resize(predicted_img5, (889, 500)))
-cv2.waitKey(0)
-cv2.destroyAllWindows()
 cv2.waitKey(1)
 cv2.destroyAllWindows()
