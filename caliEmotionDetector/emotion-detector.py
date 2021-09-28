@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 emotions = ["", "sad", "happy", "neutral", "surprised", "angry"]
 emotion_count = [0, 0, 0, 0, 0, 0]
 
-
 def detect_face(img):
     # turning image into grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -75,11 +74,11 @@ def draw_text(img, text, x, y):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, (0, 255, 0), 2)
 
 
-def plot_results():
+def plot_results(fps):
     plt.style.use('ggplot')
     x_pos = [i for i, _ in enumerate(emotions)]
 
-    plt.bar(x_pos, emotion_count, color='green')
+    plt.bar(x_pos, emotion_count/fps/60, color='green')
     plt.xlabel("Emotions")
     plt.ylabel("Time Spent in Emotion (minutes)")
     plt.title("Calliope Mori's Emotions Over Time")
@@ -99,17 +98,22 @@ face_recognizer.train(faces, np.array(labels))
 print("Predicting images...")
 
 cap = cv2.VideoCapture('test_vod.mp4')
+fps = cap.get(cv2.CAP_PROP_FPS)
+
 out = cv2.VideoWriter('predicted_vod.mp4', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30, (1920, 1080))
 while True:
     ret, frame = cap.read()
-    predicted_frame = predict(frame)
-    out.write(predicted_frame)
+    try:
+        predicted_frame = predict(frame)
+        out.write(predicted_frame)
+    except:
+        continue
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 out.release()
 print("Prediction complete")
-plot_results()
+plot_results(fps)
 
 cv2.waitKey(1)
 cv2.destroyAllWindows()
