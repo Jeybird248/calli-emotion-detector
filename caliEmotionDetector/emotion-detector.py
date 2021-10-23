@@ -40,8 +40,8 @@ def prepare_training_data(data_folder_path):
                 continue
             image_path = emotion_dir_path + "/" + image_name
             image = cv2.imread(image_path)
-            cv2.imshow("Training on image...", cv2.resize(image, (889, 500)))
-            cv2.waitKey(100)
+            #cv2.imshow("Training on image...", cv2.resize(image, (889, 500)))
+            #cv2.waitKey(100)
             face, rect = detect_face(image)
             if face is not None:
                 faces.append(face)
