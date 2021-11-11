@@ -3,8 +3,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-emotions = ["", "sad", "happy", "neutral", "surprised", "angry"]
-emotion_count = [0, 0, 0, 0, 0, 0]
+emotions = ["", "sad", "happy", "neutral"]
+emotion_count = [0, 0, 0, 0]
+
 
 def detect_face(img):
     # turning image into grayscale
@@ -40,8 +41,8 @@ def prepare_training_data(data_folder_path):
                 continue
             image_path = emotion_dir_path + "/" + image_name
             image = cv2.imread(image_path)
-            #cv2.imshow("Training on image...", cv2.resize(image, (889, 500)))
-            #cv2.waitKey(100)
+            # cv2.imshow("Training on image...", cv2.resize(image, (889, 500)))
+            # cv2.waitKey(100)
             face, rect = detect_face(image)
             if face is not None:
                 faces.append(face)
@@ -77,8 +78,8 @@ def draw_text(img, text, x, y):
 def plot_results(fps):
     plt.style.use('ggplot')
     x_pos = [i for i, _ in enumerate(emotions)]
-
-    plt.bar(x_pos, emotion_count/fps/60, color='green')
+    emotion_count_fps = [x / fps / 60 for x in emotion_count]
+    plt.bar(x_pos, emotion_count_fps, color='green')
     plt.xlabel("Emotions")
     plt.ylabel("Time Spent in Emotion (minutes)")
     plt.title("Calliope Mori's Emotions Over Time")
@@ -97,18 +98,22 @@ face_recognizer.train(faces, np.array(labels))
 
 print("Predicting images...")
 
-cap = cv2.VideoCapture('test_vod.mp4')
+cap = cv2.VideoCapture('test-data/test_vod1.mp4')
 fps = cap.get(cv2.CAP_PROP_FPS)
 
-out = cv2.VideoWriter('predicted_vod.mp4', cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 30, (1920, 1080))
+out = cv2.VideoWriter('output/predicted_vod.avi', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 10,
+                      (1280, 720))
 while True:
     ret, frame = cap.read()
-    try:
-        predicted_frame = predict(frame)
-        out.write(predicted_frame)
-    except:
-        continue
-
+    if ret:
+        try:
+            predicted_frame = predict(frame)
+            cv2.imshow("Testing on image...", cv2.resize(predicted_frame, (889, 500)))
+            out.write(predicted_frame)
+        except:
+            continue
+    else:
+        break
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 out.release()
